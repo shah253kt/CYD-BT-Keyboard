@@ -1,9 +1,8 @@
 #pragma once
 
 #include <TFT_eSPI.h>
-#include <XPT2046_Touchscreen_TT.h>
 
-namespace TouchCalibrationScreen
+namespace LoadingScreen
 {
     void render(const std::shared_ptr<TFT_eSPI> &tft);
 };

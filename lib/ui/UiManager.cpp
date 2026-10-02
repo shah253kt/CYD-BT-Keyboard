@@ -1,5 +1,6 @@
 #include "UiManager.h"
 
+#include "loading_screen/LoadingScreen.h"
 #include "touch_calibration_screen/TouchCalibrationScreen.h"
 
 UiManager::UiManager() : m_tft(std::make_shared<TFT_eSPI>()), m_touchscreenSpi(std::make_shared<SPIClass>(VSPI)), m_touchscreen(std::make_shared<XPT2046_Touchscreen>(XPT2046_CS, XPT2046_IRQ)), m_currentScreen(Screen::Loading)
@@ -24,7 +25,12 @@ void UiManager::update()
     {
     case Screen::Loading:
     {
-        TouchCalibrationScreen::update(m_tft);
+        LoadingScreen::render(m_tft);
+        break;
+    }
+    case Screen::TouchCalibration:
+    {
+        TouchCalibrationScreen::render(m_tft);
         break;
     }
     }
