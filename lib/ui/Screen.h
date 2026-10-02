@@ -3,7 +3,7 @@
 enum class Screen
 {
     Loading,
-    TouchCalibration,
+    Calibration,
     MainMenu,
     Settings,
     Gesture

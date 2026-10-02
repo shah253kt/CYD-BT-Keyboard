@@ -1,19 +1,37 @@
 #include "UiManager.h"
 
 #include "loading_screen/LoadingScreen.h"
-#include "touch_calibration_screen/TouchCalibrationScreen.h"
 
-UiManager::UiManager() : m_tft(std::make_shared<TFT_eSPI>()), m_touchscreenSpi(std::make_shared<SPIClass>(VSPI)), m_touchscreen(std::make_shared<XPT2046_Touchscreen>(XPT2046_CS, XPT2046_IRQ)), m_currentScreen(Screen::Loading)
+#include <lvgl.h>
+
+namespace
+{
+    static uint32_t tick(void)
+    {
+        return millis();
+    }
+}
+
+UiManager::UiManager(const std::shared_ptr<StorageManager> &storageManager)
+    : m_storageManager(storageManager),
+      m_tft(std::make_shared<TFT_eSPI>()),
+      m_touchScreenSpi(std::make_shared<SPIClass>(VSPI)),
+      m_touchScreen(std::make_shared<XPT2046_Touchscreen>(XPT2046_CS, XPT2046_IRQ)),
+      m_currentScreen(Screen::Loading)
 {
 }
 
 void UiManager::init()
 {
     m_tft->init();
+    m_tft->invertDisplay(true);
 
-    m_touchscreenSpi->begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
-    m_touchscreen->begin(*m_touchscreenSpi);
-    m_touchscreen->setRotation(m_tft->getRotation());
+    m_touchScreenSpi->begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
+    m_touchScreen->begin(*m_touchScreenSpi);
+    m_touchScreen->setRotation(m_tft->getRotation());
+
+    lv_init();
+    lv_tick_set_cb(tick);
 
     Serial.println("UI Manager initialized");
     update();
@@ -25,12 +43,17 @@ void UiManager::update()
     {
     case Screen::Loading:
     {
-        LoadingScreen::render(m_tft);
+        static bool rendered = false;
+        if (!rendered)
+        {
+            LoadingScreen::render(m_tft);
+            rendered = true;
+        }
         break;
     }
-    case Screen::TouchCalibration:
+    case Screen::Calibration:
     {
-        TouchCalibrationScreen::render(m_tft);
+        m_calibrationScreen.render(m_tft, m_touchScreen);
         break;
     }
     }
