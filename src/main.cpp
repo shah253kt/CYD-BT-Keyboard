@@ -1,20 +1,27 @@
 #include "UiManager.h"
 #include "StorageManager.h"
+#include "InteractionManager.h"
 
 #include <Arduino.h>
 
 #include <memory>
 
-std::shared_ptr<StorageManager> storageManager = std::make_shared<StorageManager>();
-UiManager uiManager(storageManager);
-
 void setup()
 {
   Serial.begin(115200);
-  storageManager->init();
+  
+  auto &storageManager = StorageManager::instance();
+  storageManager.init();
+  
+  auto &interactionManager = InteractionManager::instance();
+  interactionManager.init();
+  
+  auto &uiManager = UiManager::instance();
   uiManager.init();
+  interactionManager.touchScreen()->setRotation(uiManager.tft()->getRotation());
 
-  if (!storageManager->touchCalibrated()) {
+  if (!storageManager.touchCalibrated())
+  {
     uiManager.setCurrentScreen(Screen::Calibration);
     uiManager.update();
   }
@@ -22,5 +29,5 @@ void setup()
 
 void loop()
 {
-  uiManager.update();
+  UiManager::instance().update();
 }

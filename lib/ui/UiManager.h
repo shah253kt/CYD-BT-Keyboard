@@ -4,9 +4,7 @@
 #include "StorageManager.h"
 #include "calibration_screen/CalibrationScreen.h"
 
-#include <SPI.h>
 #include <TFT_eSPI.h>
-#include <XPT2046_Touchscreen_TT.h>
 
 #include <vector>
 #include <map>
@@ -15,19 +13,20 @@
 class UiManager final
 {
 public:
-    UiManager(const std::shared_ptr<StorageManager> &storageManager);
+    [[nodiscard]] static UiManager &instance();
 
     void init();
     void update();
     void setCurrentScreen(Screen screen);
     [[nodiscard]] Screen currentScreen() const;
+    [[nodiscard]] std::shared_ptr<TFT_eSPI> tft() const;
 
 private:
-    std::shared_ptr<StorageManager> m_storageManager;
-
+    UiManager();
+    UiManager(const UiManager &) = delete;
+    UiManager &operator=(const UiManager &) = delete;
+    
     std::shared_ptr<TFT_eSPI> m_tft;
-    std::shared_ptr<SPIClass> m_touchScreenSpi;
-    std::shared_ptr<XPT2046_Touchscreen> m_touchScreen;
 
     Screen m_currentScreen;
     CalibrationScreen m_calibrationScreen;

@@ -5,10 +5,21 @@ namespace
     constexpr auto TOUCH_CALIBRATED_ADDRESS = 0x00;
 }
 
+StorageManager::StorageManager()
+    : m_eepromInitialized(false)
+{
+}
+
+StorageManager &StorageManager::instance()
+{
+    static StorageManager instance;
+    return instance;
+}
+
 void StorageManager::init()
 {
     m_eepromInitialized = EEPROM.begin(EEPROM_SIZE);
-    
+
     if (!m_eepromInitialized)
     {
         Serial.println("Failed to initialize EEPROM");
