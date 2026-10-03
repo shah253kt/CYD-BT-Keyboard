@@ -2,6 +2,7 @@
 
 namespace
 {
+    constexpr auto TOUCH_DEBOUNCE_TIME_MS = 50;
     constexpr auto SWIPE_DISTANCE_THRESHOLD = 150;
     constexpr auto SWIPE_CROSS_AXIS_DISTANCE_THRESHOLD = 50;
     constexpr auto SWIPE_TIME_THRESHOLD_MS = 300;
@@ -33,11 +34,16 @@ void InteractionManager::update()
 
         if (m_touchStartedCallback != nullptr)
         {
-            m_touchStartedCallback();
+            m_touchStartedCallback(point);
         }
     }
     else if (!isTouching && m_wasTouching)
     {
+        if (millis() - m_touchStartTime < TOUCH_DEBOUNCE_TIME_MS)
+        {
+            return;
+        }
+
         if (millis() - m_touchStartTime <= SWIPE_TIME_THRESHOLD_MS)
         {
             const auto deltaX = point.x - m_touchStartPoint.x;
@@ -60,7 +66,7 @@ void InteractionManager::update()
 
         if (m_touchReleasedCallback != nullptr)
         {
-            m_touchReleasedCallback();
+            m_touchReleasedCallback(point);
         }
     }
 
@@ -72,12 +78,12 @@ void InteractionManager::setRotation(uint8_t rotation)
     m_touchScreen->setRotation(rotation);
 }
 
-void InteractionManager::setTouchStartedCallback(std::function<void()> callback)
+void InteractionManager::setTouchStartedCallback(std::function<void(TS_Point)> callback)
 {
     m_touchStartedCallback = callback;
 }
 
-void InteractionManager::setTouchReleasedCallback(std::function<void()> callback)
+void InteractionManager::setTouchReleasedCallback(std::function<void(TS_Point)> callback)
 {
     m_touchReleasedCallback = callback;
 }

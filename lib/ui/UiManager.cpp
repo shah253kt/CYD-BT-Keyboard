@@ -46,6 +46,11 @@ std::shared_ptr<TFT_eSPI> UiManager::tft() const
     return m_tft;
 }
 
+void UiManager::setScreenChangedCallback(const std::function<void(Screen)> &callback)
+{
+    m_screenChangedCallback = callback;
+}
+
 void UiManager::emitScreenChanged()
 {
     if (m_screenChangedCallback != nullptr)

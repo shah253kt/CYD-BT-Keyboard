@@ -4,7 +4,6 @@
 #include "InteractionManager.h"
 
 #include <TFT_eSPI.h>
-#include <XPT2046_Touchscreen.h>
 
 namespace
 {
@@ -25,8 +24,6 @@ CalibrationScreen &CalibrationScreen::instance()
 
 void CalibrationScreen::render()
 {
-    checkTouch();
-
     if (!m_dataChanged)
     {
         return;
@@ -42,7 +39,7 @@ void CalibrationScreen::render()
     m_dataChanged = false;
 
     const auto coordinate = getCoordinate(m_currentPoint);
-    drawPlus(tft, coordinate.first, coordinate.second, TFT_RED);
+    drawPlus(tft, coordinate.x, coordinate.y, TFT_RED);
 }
 
 void CalibrationScreen::reset()
@@ -50,18 +47,12 @@ void CalibrationScreen::reset()
     m_dataChanged = true;
     m_currentPoint = Point::TopLeft;
     m_points.clear();
+    InteractionManager::instance().setTouchReleasedCallback(std::bind(&CalibrationScreen::onTouchReleased, this, std::placeholders::_1));
 }
 
-void CalibrationScreen::checkTouch()
+void CalibrationScreen::onTouchReleased(const TS_Point point)
 {
-    auto touchScreen = InteractionManager::instance().touchScreen();
-    if (!touchScreen->touched())
-    {
-        return;
-    }
-
-    const auto point = touchScreen->getPoint();
-    m_points[m_currentPoint] = {point.x, point.y};
+    m_points[m_currentPoint] = point;
     m_dataChanged = true;
 
     switch (m_currentPoint)
@@ -86,10 +77,5 @@ void CalibrationScreen::checkTouch()
         m_currentPoint = Point::TopLeft;
         break;
     }
-    }
-
-    while (touchScreen->touched())
-    {
-        // Wait for the touch to be released
     }
 }

@@ -23,8 +23,8 @@ public:
     void setRotation(uint8_t rotation);
     [[nodiscard]] std::shared_ptr<XPT2046_Touchscreen> touchScreen() const;
 
-    void setTouchStartedCallback(std::function<void()> callback);
-    void setTouchReleasedCallback(std::function<void()> callback);
+    void setTouchStartedCallback(std::function<void(TS_Point)> callback);
+    void setTouchReleasedCallback(std::function<void(TS_Point)> callback);
     void setSwipedCallback(std::function<void(Direction)> callback);
 
 private:
@@ -39,7 +39,7 @@ private:
     uint32_t m_touchStartTime{0};
     TS_Point m_touchStartPoint;
 
-    std::function<void()> m_touchStartedCallback;
-    std::function<void()> m_touchReleasedCallback;
+    std::function<void(TS_Point)> m_touchStartedCallback;
+    std::function<void(TS_Point)> m_touchReleasedCallback;
     std::function<void(Direction)> m_swipedCallback;
 };

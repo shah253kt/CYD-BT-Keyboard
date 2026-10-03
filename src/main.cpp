@@ -10,6 +10,7 @@
 #include <memory>
 
 void updateScreen();
+void onScreenChanged(Screen newScreen);
 
 void setup()
 {
@@ -18,6 +19,7 @@ void setup()
   auto &storageManager = StorageManager::instance();
   auto &interactionManager = InteractionManager::instance();
   auto &uiManager = UiManager::instance();
+  uiManager.setScreenChangedCallback(onScreenChanged);
   interactionManager.setRotation(uiManager.tft()->getRotation());
 
   if (!storageManager.touchCalibrated())
@@ -49,6 +51,18 @@ void updateScreen()
   case Screen::Calibration:
   {
     CalibrationScreen::instance().render();
+    break;
+  }
+  }
+}
+
+void onScreenChanged(const Screen newScreen)
+{
+  switch (newScreen)
+  {
+  case Screen::Calibration:
+  {
+    CalibrationScreen::instance().reset();
     break;
   }
   }
