@@ -9,7 +9,6 @@ class StorageManager final
 public:
     [[nodiscard]] static StorageManager &instance();
 
-    void init();
     [[nodiscard]] bool touchCalibrated() const;
     void setTouchCalibrated(bool calibrated) const;
 

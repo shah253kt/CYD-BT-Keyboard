@@ -1,33 +1,55 @@
 #include "UiManager.h"
 #include "StorageManager.h"
 #include "InteractionManager.h"
+#include "CalibrationScreen.h"
+#include "LoadingScreen.hpp"
+#include "Screen.h"
 
 #include <Arduino.h>
 
 #include <memory>
 
+void updateScreen();
+
 void setup()
 {
   Serial.begin(115200);
-  
+
   auto &storageManager = StorageManager::instance();
-  storageManager.init();
-  
   auto &interactionManager = InteractionManager::instance();
-  interactionManager.init();
-  
   auto &uiManager = UiManager::instance();
-  uiManager.init();
-  interactionManager.touchScreen()->setRotation(uiManager.tft()->getRotation());
+  interactionManager.setRotation(uiManager.tft()->getRotation());
 
   if (!storageManager.touchCalibrated())
   {
     uiManager.setCurrentScreen(Screen::Calibration);
-    uiManager.update();
   }
 }
 
 void loop()
 {
-  UiManager::instance().update();
+  InteractionManager::instance().update();
+  updateScreen();
+}
+
+void updateScreen()
+{
+  switch (UiManager::instance().currentScreen())
+  {
+  case Screen::Loading:
+  {
+    static bool rendered = false;
+    if (!rendered)
+    {
+      LoadingScreen::render();
+      rendered = true;
+    }
+    break;
+  }
+  case Screen::Calibration:
+  {
+    CalibrationScreen::instance().render();
+    break;
+  }
+  }
 }

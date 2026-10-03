@@ -1,5 +1,11 @@
 #include "CalibrationScreen.h"
 
+#include "UiManager.h"
+#include "InteractionManager.h"
+
+#include <TFT_eSPI.h>
+#include <XPT2046_Touchscreen.h>
+
 namespace
 {
     constexpr auto PLUS_ARM_LENGTH = 10;
@@ -11,15 +17,22 @@ namespace
     }
 }
 
-void CalibrationScreen::render(const std::shared_ptr<TFT_eSPI> &tft, const std::shared_ptr<XPT2046_Touchscreen> &touchScreen)
+CalibrationScreen &CalibrationScreen::instance()
 {
-    checkTouch(touchScreen);
+    static CalibrationScreen instance;
+    return instance;
+}
+
+void CalibrationScreen::render()
+{
+    checkTouch();
 
     if (!m_dataChanged)
     {
         return;
     }
 
+    auto tft = UiManager::instance().tft();
     tft->fillScreen(TFT_WHITE);
     tft->setTextColor(TFT_BLACK, TFT_WHITE);
     int centerX = tft->width() / 2;
@@ -39,8 +52,9 @@ void CalibrationScreen::reset()
     m_points.clear();
 }
 
-void CalibrationScreen::checkTouch(const std::shared_ptr<XPT2046_Touchscreen> &touchScreen)
+void CalibrationScreen::checkTouch()
 {
+    auto touchScreen = InteractionManager::instance().touchScreen();
     if (!touchScreen->touched())
     {
         return;

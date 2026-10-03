@@ -1,9 +1,7 @@
 #pragma once
 
-#include <TFT_eSPI.h>
-#include <XPT2046_Touchscreen_TT.h>
-
 #include <unordered_map>
+#include <memory>
 
 namespace
 {
@@ -23,15 +21,20 @@ public:
         BottomRight
     };
 
-    void render(const std::shared_ptr<TFT_eSPI> &tft, const std::shared_ptr<XPT2046_Touchscreen> &touchScreen);
+    [[nodiscard]] static CalibrationScreen &instance();
+    void render();
 
 private:
     bool m_dataChanged{true};
     Point m_currentPoint{Point::TopLeft};
     std::unordered_map<Point, PointCoordinate> m_points;
 
+    CalibrationScreen() = default;
+    CalibrationScreen(const CalibrationScreen &) = delete;
+    CalibrationScreen &operator=(const CalibrationScreen &) = delete;
+
     void reset();
-    void checkTouch(const std::shared_ptr<XPT2046_Touchscreen> &touchScreen);
+    void checkTouch();
 
     constexpr CalibrationScreen::PointCoordinate getCoordinate(const Point current)
     {
